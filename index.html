@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشغل الفيديو</title>
+    <title>M7mod</title>
     <style>
         body {
             background-color: #000;
@@ -88,6 +88,11 @@
             border-radius: 5px;
             text-align: center;
         }
+
+        #video-count {
+            margin-top: 10px;
+            font-size: 20px;
+        }
     </style>
 </head>
 <body dir="rtl"> <!-- تحديد اتجاه النص -->
@@ -100,6 +105,7 @@
             <button id="prev-btn" disabled>الحلقة السابقة</button>
             <button id="next-btn">الحلقة التالية</button>
         </div>
+        <div id="video-count"></div> <!-- هنا عنصر عدد الحلقات -->
     </div>
 
     <div>
@@ -117,6 +123,7 @@
         const videoLinksTextarea = document.getElementById('video-links');
         const loadLinksBtn = document.getElementById('load-links');
         const errorMessage = document.getElementById('error-message');
+        const videoCount = document.getElementById('video-count'); // هنا عنصر عدد الحلقات
 
         let videoLinks = [];
         let currentVideoIndex = 0;
@@ -141,12 +148,18 @@
             }, 3000); // إخفاء الرسالة بعد 3 ثواني
         }
 
+        // عرض عدد الحلقات وتحديثه
+        function updateVideoCount() {
+            videoCount.textContent = `الحلقة ${currentVideoIndex + 1} من ${videoLinks.length}`;
+        }
+
         // التبديل إلى الفيديو السابق
         prevBtn.addEventListener('click', function() {
             if (currentVideoIndex > 0) {
                 currentVideoIndex--;
                 loadVideo(currentVideoIndex);
                 checkVideoLocation();
+                updateVideoCount();
             }
         });
 
@@ -156,6 +169,7 @@
                 currentVideoIndex++;
                 loadVideo(currentVideoIndex);
                 checkVideoLocation();
+                updateVideoCount();
             }
         });
 
@@ -172,6 +186,7 @@
             currentVideoIndex = 0;
             loadVideo(currentVideoIndex);
             checkVideoLocation();
+            updateVideoCount();
         });
 
         // التحقق من موقع الفيديو عند تحميله
