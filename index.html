@@ -6,12 +6,12 @@
     <title>M7mod</title>
     <style>
         body {
-            background-color: #000;
+            background-color: #ccc; /* تعيين الخلفية باللون الرمادي */
             color: #fff;
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            text-align: right; /* تحديد اتجاه النص */
+            text-align: right;
         }
 
         #video-container {
@@ -20,9 +20,9 @@
         }
 
         #video-player {
-            width: 80%;
+            width: 80%; /* حجم المشغل */
             max-width: 800px;
-            margin: 0 auto;
+            margin: 0 auto; /* وضع المشغل في وسط الصفحة */
         }
 
         #buttons {
@@ -43,23 +43,23 @@
         }
 
         #video-links {
-            width: 80%;
+            width: 80%; /* حجم حقل النص */
             max-width: 800px;
             height: 100px;
             display: block;
             margin: 20px auto;
             padding: 10px;
             font-size: 16px;
-            color: #fff; /* تحديد لون النص */
-            border-radius: 10px; /* تحديد شكل الزاوية */
-            border: 2px solid #555; /* تحديد حدود الحقل */
-            background-color: #222; /* تحديد لون خلفية الحقل */
-            resize: none; /* عدم السماح بتغيير حجم الحقل */
-            outline: none; /* إزالة التأثير عند التركيز */
+            color: #fff;
+            border-radius: 10px;
+            border: 2px solid #555;
+            background-color: #222;
+            resize: none;
+            outline: none;
         }
 
         #video-links::placeholder {
-            color: #666; /* تحديد لون النص التلقائي */
+            color: #666;
         }
 
         #load-links {
@@ -69,10 +69,10 @@
             font-size: 16px;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            background-color: #333; /* تحديد لون الخلفية */
-            color: #fff; /* تحديد لون النص */
-            border: none; /* إزالة حدود الزر */
-            border-radius: 5px; /* تحديد شكل الزاوية */
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
         }
 
         #load-links:hover {
@@ -95,9 +95,9 @@
         }
     </style>
 </head>
-<body dir="rtl"> <!-- تحديد اتجاه النص -->
+<body dir="rtl">
     <div id="video-container">
-        <video id="video-player" controls dir="auto"> <!-- تحديد اتجاه النص -->
+        <video id="video-player" controls dir="auto">
             <source id="video-source" src="" type="video/mp4">
             المتصفح الخاص بك لا يدعم تشغيل الفيديو.
         </video>
@@ -105,7 +105,7 @@
             <button id="prev-btn" disabled>الحلقة السابقة</button>
             <button id="next-btn">الحلقة التالية</button>
         </div>
-        <div id="video-count"></div> <!-- هنا عنصر عدد الحلقات -->
+        <div id="video-count"></div>
     </div>
 
     <div>
@@ -115,7 +115,7 @@
     </div>
 
     <script>
-        // تحديد عناصر الصفحة
+        // تحديد العناصر
         const videoPlayer = document.getElementById('video-player');
         const videoSource = document.getElementById('video-source');
         const prevBtn = document.getElementById('prev-btn');
@@ -123,37 +123,32 @@
         const videoLinksTextarea = document.getElementById('video-links');
         const loadLinksBtn = document.getElementById('load-links');
         const errorMessage = document.getElementById('error-message');
-        const videoCount = document.getElementById('video-count'); // هنا عنصر عدد الحلقات
+        const videoCount = document.getElementById('video-count');
 
         let videoLinks = [];
         let currentVideoIndex = 0;
 
-        // تحميل الفيديو
         function loadVideo(index) {
             videoSource.src = videoLinks[index];
             videoPlayer.load();
         }
 
-        // التحقق من موقع الفيديو وتمكين / تعطيل الأزرار بناءً على ذلك
         function checkVideoLocation() {
             prevBtn.disabled = currentVideoIndex === 0;
             nextBtn.disabled = currentVideoIndex === videoLinks.length - 1;
         }
 
-        // إظهار رسالة الخطأ
         function showError() {
             errorMessage.style.display = 'block';
             setTimeout(() => {
                 errorMessage.style.display = 'none';
-            }, 3000); // إخفاء الرسالة بعد 3 ثواني
+            }, 3000);
         }
 
-        // عرض عدد الحلقات وتحديثه
         function updateVideoCount() {
             videoCount.textContent = `الحلقة ${currentVideoIndex + 1} من ${videoLinks.length}`;
         }
 
-        // التبديل إلى الفيديو السابق
         prevBtn.addEventListener('click', function() {
             if (currentVideoIndex > 0) {
                 currentVideoIndex--;
@@ -163,7 +158,6 @@
             }
         });
 
-        // التبديل إلى الفيديو التالي
         nextBtn.addEventListener('click', function() {
             if (currentVideoIndex < videoLinks.length - 1) {
                 currentVideoIndex++;
@@ -173,11 +167,9 @@
             }
         });
 
-        // تحميل الروابط عند النقر على الزر
         loadLinksBtn.addEventListener('click', function() {
             videoLinks = videoLinksTextarea.value.split('\n').filter(link => link.trim() !== '');
             
-            // التحقق من صحة الروابط
             if (videoLinks.length === 0) {
                 showError();
                 return;
@@ -187,15 +179,64 @@
             loadVideo(currentVideoIndex);
             checkVideoLocation();
             updateVideoCount();
+
+            // حفظ الروابط في Local Storage
+            localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
         });
 
-        // التحقق من موقع الفيديو عند تحميله
         videoPlayer.addEventListener('error', function() {
             showError();
         });
 
         videoPlayer.addEventListener('loadeddata', function() {
             checkVideoLocation();
+        });
+
+        // إضافة التنقل بين الحلقات باستخدام الأسهم
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'ArrowLeft') {
+                prevBtn.click();
+            } else if (event.code === 'ArrowRight') {
+                nextBtn.click();
+            }
+        });
+
+        // إظهار عنوان الفيديو
+        videoPlayer.addEventListener('loadedmetadata', function() {
+            const videoTitle = videoLinks[currentVideoIndex].split('/').pop();
+            document.title = videoTitle;
+        });
+
+        // حفظ الروابط والحلقة والدقيقة التي كنت فيها
+        window.addEventListener('beforeunload', function() {
+            localStorage.setItem('currentVideoIndex', currentVideoIndex);
+            localStorage.setItem('currentTime', videoPlayer.currentTime);
+        });
+
+        // استعادة الروابط والحلقة والدقيقة التي كنت فيها عند تحميل الصفحة
+        window.addEventListener('load', function() {
+            const savedVideoLinks = JSON.parse(localStorage.getItem('videoLinks'));
+            const savedCurrentVideoIndex = localStorage.getItem('currentVideoIndex');
+            const savedCurrentTime = localStorage.getItem('currentTime');
+
+            if (savedVideoLinks && savedCurrentVideoIndex !== null && savedCurrentTime !== null) {
+                videoLinks = savedVideoLinks;
+                currentVideoIndex = parseInt(savedCurrentVideoIndex);
+                loadVideo(currentVideoIndex);
+                videoPlayer.currentTime = parseFloat(savedCurrentTime);
+                checkVideoLocation();
+                updateVideoCount();
+                
+                // إعادة تعيين قيمة النص في الحقل النصي
+                videoLinksTextarea.value = savedVideoLinks.join('\n');
+            }
+        });
+
+        // إضافة شريط تقدم الفيديو
+        videoPlayer.addEventListener('timeupdate', function() {
+            const currentTime = videoPlayer.currentTime;
+            const duration = videoPlayer.duration;
+            // يمكنك استخدام currentTime و duration لإنشاء شريط تقدم الفيديو هنا
         });
     </script>
 </body>
