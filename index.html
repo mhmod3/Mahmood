@@ -6,7 +6,7 @@
     <title>M7mod</title>
     <style>
         body {
-            background-color: #ccc; /* تعيين الخلفية باللون الرمادي */
+            background-color: #ccc;
             color: #fff;
             font-family: Arial, sans-serif;
             margin: 0;
@@ -20,9 +20,9 @@
         }
 
         #video-player {
-            width: 80%; /* حجم المشغل */
+            width: 80%;
             max-width: 800px;
-            margin: 0 auto; /* وضع المشغل في وسط الصفحة */
+            margin: 0 auto;
         }
 
         #buttons {
@@ -43,7 +43,7 @@
         }
 
         #video-links {
-            width: 80%; /* حجم حقل النص */
+            width: 80%;
             max-width: 800px;
             height: 100px;
             display: block;
@@ -93,6 +93,17 @@
             margin-top: 10px;
             font-size: 20px;
         }
+
+        #drop-note {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 16px;
+            
+        }
+
+        #drop-note p {
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body dir="rtl">
@@ -112,10 +123,12 @@
         <textarea id="video-links" placeholder="ضع روابط الفيديو هنا (كل رابط في سطر منفصل)"></textarea>
         <button id="load-links">أضغط هنا بعد وضع الروابط</button>
         <div id="error-message">خطأ: يرجى التحقق من الروابط والمحاولة مرة أخرى.</div>
+        <div id="drop-note">
+            <p>أو يمكنك اسقاط ملف "txt." هنا يحتوي على الروابط</p>
+        </div>
     </div>
 
     <script>
-        // تحديد العناصر
         const videoPlayer = document.getElementById('video-player');
         const videoSource = document.getElementById('video-source');
         const prevBtn = document.getElementById('prev-btn');
@@ -192,25 +205,32 @@
             checkVideoLocation();
         });
 
-        // إضافة التنقل بين الحلقات باستخدام الأسهم
-        document.addEventListener('keydown', function(event) {
-            if (event.code === 'ArrowLeft') {
-                prevBtn.click();
-            } else if (event.code === 'ArrowRight') {
-                nextBtn.click();
+        // إضافة السماح بالسحب والإسقاط للملفات
+        document.body.addEventListener('dragover', function(event) {
+            event.preventDefault();
+        });
+
+        document.body.addEventListener('drop', function(event) {
+            event.preventDefault();
+            const file = event.dataTransfer.files[0];
+
+            if (file.type === 'text/plain') {
+                const reader = new FileReader();
+                reader.onload = function() {
+                    const content = reader.result;
+                    const links = content.match(/(https?|ftp):\/\/[^\s/$.?#].[^\s]*/gm);
+
+                    if (links) {
+                        videoLinksTextarea.value = links.join('\n');
+                        loadLinksBtn.click();
+                    } else {
+                        alert('لا يوجد روابط في الملف.');
+                    }
+                };
+                reader.readAsText(file);
+            } else {
+                alert('يرجى تحميل ملف نصي "txt".');
             }
-        });
-
-        // إظهار عنوان الفيديو
-        videoPlayer.addEventListener('loadedmetadata', function() {
-            const videoTitle = videoLinks[currentVideoIndex].split('/').pop();
-            document.title = videoTitle;
-        });
-
-        // حفظ الروابط والحلقة والدقيقة التي كنت فيها
-        window.addEventListener('beforeunload', function() {
-            localStorage.setItem('currentVideoIndex', currentVideoIndex);
-            localStorage.setItem('currentTime', videoPlayer.currentTime);
         });
 
         // استعادة الروابط والحلقة والدقيقة التي كنت فيها عند تحميل الصفحة
@@ -232,11 +252,10 @@
             }
         });
 
-        // إضافة شريط تقدم الفيديو
-        videoPlayer.addEventListener('timeupdate', function() {
-            const currentTime = videoPlayer.currentTime;
-            const duration = videoPlayer.duration;
-            // يمكنك استخدام currentTime و duration لإنشاء شريط تقدم الفيديو هنا
+        // حفظ الروابط والحلقة والدقيقة التي كنت فيها
+        window.addEventListener('beforeunload', function() {
+            localStorage.setItem('currentVideoIndex', currentVideoIndex);
+            localStorage.setItem('currentTime', videoPlayer.currentTime);
         });
     </script>
 </body>
