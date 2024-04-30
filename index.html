@@ -62,9 +62,9 @@
             color: #666;
         }
 
-        #load-links {
+        #load-links, #file-upload-label {
             display: block;
-            margin: 0 auto;
+            margin: 10px auto;
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
@@ -75,7 +75,7 @@
             border-radius: 5px;
         }
 
-        #load-links:hover {
+        #load-links:hover, #file-upload-label:hover {
             background-color: #555;
         }
 
@@ -98,7 +98,6 @@
             text-align: center;
             margin-top: 20px;
             font-size: 16px;
-            
         }
 
         #drop-note p {
@@ -122,6 +121,10 @@
     <div>
         <textarea id="video-links" placeholder="ضع روابط الفيديو هنا (كل رابط في سطر منفصل)"></textarea>
         <button id="load-links">أضغط هنا بعد وضع الروابط</button>
+        <label for="file-upload" id="file-upload-label" class="custom-file-upload">
+            اختيار ملف
+        </label>
+        <input type="file" id="file-upload" style="display:none" accept=".txt">
         <div id="error-message">خطأ: يرجى التحقق من الروابط والمحاولة مرة أخرى.</div>
         <div id="drop-note">
             <p>أو يمكنك اسقاط ملف "txt." هنا يحتوي على الروابط</p>
@@ -137,6 +140,7 @@
         const loadLinksBtn = document.getElementById('load-links');
         const errorMessage = document.getElementById('error-message');
         const videoCount = document.getElementById('video-count');
+        const fileUpload = document.getElementById('file-upload');
 
         let videoLinks = [];
         let currentVideoIndex = 0;
@@ -195,6 +199,27 @@
 
             // حفظ الروابط في Local Storage
             localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
+        });
+
+        fileUpload.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file.type === 'text/plain') {
+                const reader = new FileReader();
+                reader.onload = function() {
+                    const content = reader.result;
+                    const links = content.match(/(https?|ftp):\/\/[^\s/$.?#].[^\s]*/gm);
+
+                    if (links) {
+                        videoLinksTextarea.value = links.join('\n');
+                        loadLinksBtn.click();
+                    } else {
+                        alert('لا يوجد روابط في الملف.');
+                    }
+                };
+                reader.readAsText(file);
+            } else {
+                alert('يرجى تحميل ملف نصي "txt".');
+            }
         });
 
         videoPlayer.addEventListener('error', function() {
